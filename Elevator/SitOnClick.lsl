@@ -1,5 +1,11 @@
 /**
  * SitOnClick LSL example
+ *
+ * A simple script that allows the specification of a custom sit target, forces
+ * a sit click-action and provides for custom handling of sit-down and stand-up
+ * events. A typical use case would be an object serving as a sitting spot on
+ * which avatars are to be seated in a certain way and which notifies some other
+ * script about users sitting on it and standing up from it.
  * 
  * Copyright © 2021 George Anastassakis (ganast@ganast.com)
  * 
@@ -22,6 +28,34 @@
  * SOFTWARE.
  */
 
+/*** Configuration ************************************************************/
+
+/**
+ * The sit target offset.
+ */
+vector sit_target_offset = <0.4, 0, 0.55>;
+
+/**
+ * The sit target rotation as euler angles, in degrees.
+ */
+vector sit_target_rotation_euler = <0, 0, 0>;
+
+/**
+ *
+ */
+on_sit_down(key avatar) {
+    // TODO: ...
+}
+
+/**
+ *
+ */
+on_stand_up(key avatar) {
+    // TODO: ...
+}
+
+/******************************************************************************/
+
 /**
  *
  */
@@ -30,41 +64,33 @@ key avatarOnSitTarget;
 /**
  *
  */
-on_sit_start(key avatar) {
-    // TODO: ...
-}
-
-/**
- *
- */
-on_sit_end(key avatar) {
-    // TODO: ...
-}
-
-/**
- *
- */
 default {
 
     state_entry() {
         avatarOnSitTarget = llAvatarOnSitTarget();
-		llSitTarget(<0.4, 0, 0.55>, llEuler2Rot(<0, 0, 0>*DEG_TO_RAD));	
+		llSitTarget(sit_target_offset, llEuler2Rot(sit_target_rotation_euler * DEG_TO_RAD));	
         llSetClickAction(CLICK_ACTION_SIT);
     }
 
     changed(integer change) {
-        // check if the change is because someone actually sat on or stood up
+        
+		// check if the change is because someone actually sat on or stood up
         // from the object...
         if (change & CHANGED_LINK) {
-            key newAvatarOnSitTarget = llAvatarOnSitTarget();
-            if (avatarOnSitTarget == NULL_KEY && newAvatarOnSitTarget != NULL_KEY) {
-                // someone sat on the object...
+        
+			key newAvatarOnSitTarget = llAvatarOnSitTarget();
+            
+			if (avatarOnSitTarget == NULL_KEY && newAvatarOnSitTarget != NULL_KEY) {
+            
+				// someone sat on the object...
                 avatarOnSitTarget = newAvatarOnSitTarget;
-                on_sit_start(avatarOnSitTarget);
+                on_sit_down(avatarOnSitTarget);
             }
+
             else if (avatarOnSitTarget != NULL_KEY && newAvatarOnSitTarget == NULL_KEY) {
+
                 // someone stood up from the object...
-                on_sit_end(avatarOnSitTarget);
+                on_stand_up(avatarOnSitTarget);
                 avatarOnSitTarget = newAvatarOnSitTarget;
             }
         }

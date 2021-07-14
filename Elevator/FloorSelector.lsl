@@ -1,6 +1,11 @@
 /**
  * FloorSelector LSL example
  * 
+ * A simple script that displays a menu on click containing a list of configured
+ * choices. When a choice is made, its index in the list is sent as a chat
+ * message over a configured chat channel. An example use case would be a floor-
+ * selection panel for an elevator.
+ *
  * Copyright © 2021 George Anastassakis (ganast@ganast.com)
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,34 +26,73 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
- 
+
+/*** Configuration ************************************************************/
+
+/**
+ * The title of the floor selection menu.
+ */
+string menu_title = "Please select floor";
+
+/**
+ * The list of floor names.
+ */
+list floor_names = ["Ground floor", "First floor", "Second floor", "Terrace"];
+
+/**
+ * The chat channel to which floor selection indices will be sent.
+ */
 integer elevator_private_channel = 1234;
+
+/******************************************************************************/
+
+/**
+ * The chat channel for communication between the floor selection menu and this
+ * script.
+ */
 integer floor_selector_private_channel = 4321;
 
+/**
+ * The one and only state of this script, in which it displays a floor-selection
+ * menu and sends choices (i.e., indices of selected floor names in thee floor
+ * names list) as chat messages.
+ */
 default {
 
+	/**
+	 * State-entry handler, sets-up communication between the floor-selection
+	 * menu and this script.
+	 */
     state_entry() {
+		// start listening for choices on the menu...
         llListen(floor_selector_private_channel, "", NULL_KEY, "");
     }
-    
+
+	/**
+	 * Touch event handler, responds with displaying the floor-selection menu.
+	 */
     touch_start(integer total_number) {
-        key avatar = llDetectedKey(0);
-        llDialog(avatar, "Please select floor", ["Ground floor", "First floor", "Second floor", "Terrace"], floor_selector_private_channel);
+		// display the menu on the user's viewer...
+        llDialog(llDetectedKey(0), menu_title, floor_names, floor_selector_private_channel);
     }
 
+	/**
+	 * Listen event handler, responds with finding the selected floor name index
+	 * in the floor names list and sending it to the configured chat channel.
+	 */
     listen(integer chan, string name, key id, string msg) {
-        if (chan == floor_selector_private_channel) {
-            if (msg == "Ground floor") {
-                llSay(elevator_private_channel, "0");
-            }
-            else if (msg == "First floor") {
-                llSay(elevator_private_channel, "1");
-            }
-            else if (msg == "Second floor") {
-                llSay(elevator_private_channel, "2");
-            }
-            else if (msg == "Terrace") {
-                llSay(elevator_private_channel, "3");
+        
+		// check if the message indeed came from the floor-selection menu...
+		if (chan == floor_selector_private_channel) {
+        
+			// attempt to find the index of the choice made on the menu in the
+			// floor names list...
+			integer k = llListFindList(floor_names, msg);
+            
+			if (k != -1) {
+				// if found, send it over the configured chat channel as a
+				// string...
+                llSay(elevator_private_channel, (string) k);
             }
         }
     }

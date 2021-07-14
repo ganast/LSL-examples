@@ -24,20 +24,24 @@
  * SOFTWARE.
  */
 
+/*** Configuration ************************************************************/
+
 /**
- * Arbitrary axis to rotate the object around.
+ * Axis of rotation.
  */
 vector axis = <0, 0, 1>;
 
 /**
- * Rate of rotation in radians per second.
+ * Rotation speed, in degrees per second.
  */
-float spinrate = 180.0 * DEG_TO_RAD;
+float speed = 180.0 * DEG_TO_RAD;
 
 /**
  * Also modulates the final spinrate and disables the rotation behavior if zero.
  */
 float gain = 1.0;
+
+/******************************************************************************/
 
 default {
 
