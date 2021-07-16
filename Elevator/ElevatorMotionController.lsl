@@ -57,7 +57,7 @@ move(float height) {
 
     // start moving (if necessary)...
     vector p = pos;
-    while (llFabs(h1 - p.z) > 0.01) {
+    while ((dir > 0 && p.z < h1) || (dir < 0 && p.z > h1)) {
         p.z += dir;
         llSleep(0.1);
         llSetRegionPos(p);
